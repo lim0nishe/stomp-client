@@ -1,0 +1,9 @@
+<div id="messages">
+  <input [(ngModel)]="message.message" placeholder="message"/>
+  <input [(ngModel)]="message.destination" placeholder="destination"/>
+  <button class="btn btn-primary" (click)="onSendMessage()">Send test message</button>
+  <input [(ngModel)]="subscriptionDestination" placeholder="subscription"/>
+  <button class="btn btn-primary" (click)="addSubscription()">Add subscription</button>
+  <h2>Received messages</h2>
+  <div #subscriptions></div>
+</div>
