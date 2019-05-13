@@ -1,7 +1,9 @@
 import {Component, ComponentFactoryResolver, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
-import {RxStompService} from '@stomp/ng2-stompjs';
-import {StompHeaders} from '@stomp/ng2-stompjs';
+import {InjectableRxStompConfig, StompRService} from '@stomp/ng2-stompjs';
 import {SubscriptionComponent} from '../subscription/subscription.component';
+import {RxStompConfig, RxStompState} from '@stomp/rx-stomp';
+import {Observable} from 'rxjs/Observable';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-messages',
@@ -12,49 +14,58 @@ export class MessagesComponent implements OnInit {
 
   @ViewChild('subscriptions', {read: ViewContainerRef}) subscriptions: ViewContainerRef;
 
+  public connectionStatus$: Observable<string>;
+
   message = {
-    message: 'message',
-    destination: 'destination'
+    message: '',
+    destination: ''
   };
 
   subscriptionDestination: string;
 
-  constructor(private rxStompService: RxStompService,
-              private resolver: ComponentFactoryResolver) {
+  server = {
+    oauth2token: '',
+    url: ''
+  };
+
+  private stompConfig: RxStompConfig;
+
+  constructor(// private rxStompService: RxStompService,
+    private stompService: StompRService,
+              private resolver: ComponentFactoryResolver,
+              private defaultConfig: InjectableRxStompConfig) {
+    this.stompConfig = defaultConfig;
+    this.connectionStatus$ = stompService.connectionState$.pipe(map((state) => {
+      return RxStompState[state];
+    }));
   }
 
   ngOnInit() {
-
-    this.rxStompService.serverHeaders$.subscribe((headers: StompHeaders) => {
-      console.log('connected!');
-      /*this.rxStompService.watch('/user/test-destination').subscribe((message: Message) => {
-        console.log('received:', message.body);
-      });
-
-      this.rxStompService.watch('/user/incoming-call').subscribe((message: Message) => {
-        console.log('received incoming call message');
-        console.log('message body: ', message.body);
-      });
-
-      this.rxStompService.watch('/broadcast').subscribe((message: Message) => {
-        console.log('received broadcast: ', message.body);
-      });
-
-      this.rxStompService.watch('/users').subscribe((message: Message) => {
-        console.log('login message: ', message.body);
-      });*/
-    });
   }
 
   addSubscription() {
+    if (!this.stompService.connected()) {
+      console.warn('Connected!');
+      return;
+    }
     const factory = this.resolver.resolveComponentFactory(SubscriptionComponent);
     const subscription = this.subscriptions.createComponent(factory);
-    subscription.instance.init(this.subscriptionDestination, this.rxStompService.watch(this.subscriptionDestination));
+    subscription.instance.init(this.subscriptionDestination, this.stompService.watch(this.subscriptionDestination));
   }
 
   onSendMessage() {
     if (this.message.message && this.message.destination) {
-      this.rxStompService.publish({destination: this.message.destination, body: this.message.message});
+      this.stompService.publish({destination: this.message.destination, body: this.message.message});
     }
+  }
+
+  connect() {
+    this.stompConfig.brokerURL = this.server.url + '?access_token=' + this.server.oauth2token;
+    this.stompService.configure(this.stompConfig);
+    this.stompService.initAndConnect();
+  }
+
+  disconnect() {
+    this.stompService.deactivate();
   }
 }

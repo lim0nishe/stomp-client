@@ -3,7 +3,7 @@ import {InjectableRxStompConfig} from '@stomp/ng2-stompjs';
 export const myRxStompConfig: InjectableRxStompConfig = {
 
   // todo: config
-  brokerURL: 'ws://127.0.0.1:8080/call?access_token=96fab3cb-c703-40b0-90c7-d2180feb0d31',
+  brokerURL: 'ws://127.0.0.1:8080/call',
 
   // Headers
   connectHeaders: {

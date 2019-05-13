@@ -1,9 +1,24 @@
 <div id="messages">
-  <input [(ngModel)]="message.message" placeholder="message"/>
-  <input [(ngModel)]="message.destination" placeholder="destination"/>
-  <button class="btn btn-primary" (click)="onSendMessage()">Send test message</button>
-  <input [(ngModel)]="subscriptionDestination" placeholder="subscription"/>
-  <button class="btn btn-primary" (click)="addSubscription()">Add subscription</button>
-  <h2>Received messages</h2>
-  <div #subscriptions></div>
+  <div class="container">
+    <h2>Settings</h2>
+    <input [(ngModel)]="server.url" placeholder="Websocket endpoint url"/>
+    <input [(ngModel)]="server.oauth2token" placeholder="OAuth2 token"/>
+    <button class="btn btn-primary btn-sm" (click)="connect()">Connect</button>
+    <div id="indicator" class="{{connectionStatus$|async}}"></div>
+    <span id="status-label">{{connectionStatus$|async}}</span>
+  </div>
+  <div class="container">
+    <input [(ngModel)]="subscriptionDestination" placeholder="subscription"/>
+    <button class="btn btn-primary btn-sm" (click)="addSubscription()">Add subscription</button>
+  </div>
+  <div class="container">
+    <input [(ngModel)]="message.message" placeholder="message"/>
+    <input [(ngModel)]="message.destination" placeholder="destination"/>
+    <button class="btn btn-primary btn-sm" (click)="onSendMessage()">Send test message</button>
+  </div>
+
+  <div class="container">
+    <h2>Received messages</h2>
+    <div #subscriptions></div>
+  </div>
 </div>
