@@ -60,12 +60,12 @@ export class MessagesComponent implements OnInit {
   }
 
   connect() {
-    this.stompConfig.brokerURL = this.server.url + '?access_token=' + this.server.oauth2token;
-    this.stompService.configure(this.stompConfig);
-    this.stompService.initAndConnect();
-  }
-
-  disconnect() {
-    this.stompService.deactivate();
+    if (this.stompService.connected()) {
+      this.stompService.deactivate();
+    } else {
+      this.stompConfig.brokerURL = this.server.url + '?access_token=' + this.server.oauth2token;
+      this.stompService.configure(this.stompConfig);
+      this.stompService.initAndConnect();
+    }
   }
 }
